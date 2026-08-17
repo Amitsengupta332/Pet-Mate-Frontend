@@ -1,11 +1,11 @@
+import HeroCarousel from "@/components/modules/Home/hero";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
     <div>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      home
-      <Button> Button Testing </Button>
+      <HeroCarousel />
+    
     </div>
   );
 }
