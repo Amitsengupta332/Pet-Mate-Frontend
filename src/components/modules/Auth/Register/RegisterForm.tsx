@@ -62,7 +62,7 @@ export function RegisterForm() {
     try {
       const registerData = {
         ...data,
-        role: data.role.toUpperCase(), // Prisma Enum-এর জন্য বড় হাতের অক্ষরে রূপান্তর
+        role: data.role.toUpperCase(), // Prisma Enum অনুযায়ী ("OWNER" / "SITTER")
       };
 
       const res = await registerUser(registerData);
@@ -72,7 +72,6 @@ export function RegisterForm() {
       } else {
         toast.error(res?.message || "Registration failed!");
       }
-      console.log(res);
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong!");
     }
@@ -81,7 +80,7 @@ export function RegisterForm() {
   return (
     <div className="min-h-[85vh] w-full flex items-center justify-center bg-gradient-to-br from-orange-50/40 via-background to-orange-100/30 p-4 lg:p-8">
       <div className="w-full max-w-4xl bg-card rounded-3xl border border-orange-100 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-        {/* Left Side: Branding & Visual Banner */}
+        {/* Left Side: Branding Banner */}
         <div className="hidden lg:flex lg:col-span-5 relative bg-gradient-to-tr from-orange-500 via-orange-500 to-amber-500 p-8 flex-col justify-between text-white overflow-hidden">
           <div className="absolute inset-0 opacity-20 mix-blend-overlay">
             <Image
@@ -89,6 +88,7 @@ export function RegisterForm() {
               alt="Pet walking background"
               fill
               className="object-cover"
+              priority
             />
           </div>
 
@@ -96,9 +96,7 @@ export function RegisterForm() {
             <div className="h-10 w-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
               <Dog className="h-6 w-6 text-white" />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight">
-              PetMate
-            </span>
+            <span className="font-extrabold text-2xl tracking-tight">PetMate</span>
           </div>
 
           <div className="relative z-10 my-auto py-6">
@@ -110,8 +108,7 @@ export function RegisterForm() {
               Start your journey with PetMate today!
             </h2>
             <p className="text-orange-100 text-sm leading-relaxed">
-              Find reliable pet sitters or offer your care services to pet
-              parents nearby.
+              Find reliable pet sitters or offer your care services to pet parents nearby.
             </p>
           </div>
 
@@ -121,9 +118,7 @@ export function RegisterForm() {
             </div>
             <div>
               <p className="text-xs font-semibold">Flexible Roles</p>
-              <p className="text-[10px] text-orange-100">
-                Pet Owners & Certified Sitters
-              </p>
+              <p className="text-[10px] text-orange-100">Pet Owners & Certified Sitters</p>
             </div>
           </div>
         </div>

@@ -34,7 +34,7 @@ const loginSchema = z.object({
     .string()
     .min(1, "Email is required")
     .email("Please enter a valid email address"),
-  password: z.string().min(3, "Password must be at least 3 characters"),
+  password: z.string().min(4, "Password must be at least 4 characters"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -50,60 +50,42 @@ export function LoginForm() {
     },
   });
 
-  // function onSubmit(data: LoginFormData) {
-  //   toast.success("Welcome back!", {
-  //     description: `Logged in as ${data.email}`,
-  //   });
-  // }
-
-  // function onSubmit(data: LoginFormData) {
-  //   console.log("Submitted Data:", data); // ব্রাউজার কনসোলে দেখার জন্য
-
-  //   toast.success("Welcome back!", {
-  //     description: `Logged in as ${data.email}`,
-  //   });
-  // }
   async function onSubmit(data: LoginFormData) {
-    console.log(data);
     try {
       const res = await loginUser(data);
-      if(res.success){
-        toast.success(res.message)
-      }else{
-           toast.success(res.message)
+
+      if (res?.success) {
+        toast.success(res.message || "Welcome back!");
+      } else {
+        toast.error(res?.message || "Invalid credentials!");
       }
-      console.log(res);
     } catch (error: any) {
-      toast.error(error);
+      toast.error(error?.message || "Something went wrong!");
     }
   }
 
   return (
     <div className="min-h-[85vh] w-full flex items-center justify-center bg-gradient-to-br from-orange-50/40 via-background to-orange-100/30 p-4 lg:p-8">
       <div className="w-full max-w-4xl bg-card rounded-3xl border border-orange-100 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-        {/* Left Side: Branding & Visual Banner */}
+        {/* Left Side: Branding Banner */}
         <div className="hidden lg:flex lg:col-span-5 relative bg-gradient-to-tr from-orange-500 via-orange-500 to-amber-500 p-8 flex-col justify-between text-white overflow-hidden">
-          {/* Background Pet Image Overlay */}
           <div className="absolute inset-0 opacity-20 mix-blend-overlay">
             <Image
               src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=800&auto=format&fit=crop"
               alt="Pet care background"
               fill
               className="object-cover"
+              priority
             />
           </div>
 
-          {/* Top Brand */}
           <div className="relative z-10 flex items-center gap-2">
             <div className="h-10 w-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
               <Dog className="h-6 w-6 text-white" />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight">
-              PetMate
-            </span>
+            <span className="font-extrabold text-2xl tracking-tight">PetMate</span>
           </div>
 
-          {/* Middle Content */}
           <div className="relative z-10 my-auto py-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-medium mb-4">
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -113,28 +95,23 @@ export function LoginForm() {
               Welcome back to your pet’s favorite place!
             </h2>
             <p className="text-orange-100 text-sm leading-relaxed">
-              Connect with verified sitters, track bookings, and keep your furry
-              friends happy.
+              Connect with verified sitters, track bookings, and keep your furry friends happy.
             </p>
           </div>
 
-          {/* Bottom Floating Badge */}
           <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/20 p-3.5 rounded-2xl flex items-center gap-3">
             <div className="h-9 w-9 rounded-full bg-white text-orange-500 flex items-center justify-center font-bold shrink-0">
               <PawPrint className="h-5 w-5" />
             </div>
             <div>
               <p className="text-xs font-semibold">10,000+ Happy Pets</p>
-              <p className="text-[10px] text-orange-100">
-                Safe & Loving Environment
-              </p>
+              <p className="text-[10px] text-orange-100">Safe & Loving Environment</p>
             </div>
           </div>
         </div>
 
         {/* Right Side: Form */}
         <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center">
-          {/* Header */}
           <div className="mb-8 text-center lg:text-left">
             <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-orange-100 text-orange-500 mb-3 lg:hidden">
               <Dog className="h-6 w-6" />
@@ -147,9 +124,8 @@ export function LoginForm() {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            <FieldGroup>
+            <FieldGroup className="space-y-4">
               {/* Email Field */}
               <Controller
                 name="email"
@@ -232,17 +208,15 @@ export function LoginForm() {
               />
             </FieldGroup>
 
-            {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 group"
+              className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 group mt-2"
             >
               <span>Sign In</span>
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </form>
 
-          {/* Footer Navigation */}
           <div className="mt-8 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link
