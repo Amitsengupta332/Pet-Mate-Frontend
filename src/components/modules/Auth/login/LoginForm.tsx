@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
@@ -7,15 +8,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { Eye, EyeOff, Lock, Mail, Dog, ArrowRight, ShieldCheck, PawPrint } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Dog,
+  ArrowRight,
+  ShieldCheck,
+  PawPrint,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { loginUser } from "@/services/auth";
 
 const loginSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  password: z.string().min(3, "Password must be at least 3 characters"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -31,16 +50,37 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(data: LoginFormData) {
-    toast.success("Welcome back!", {
-      description: `Logged in as ${data.email}`,
-    });
+  // function onSubmit(data: LoginFormData) {
+  //   toast.success("Welcome back!", {
+  //     description: `Logged in as ${data.email}`,
+  //   });
+  // }
+
+  // function onSubmit(data: LoginFormData) {
+  //   console.log("Submitted Data:", data); // ব্রাউজার কনসোলে দেখার জন্য
+
+  //   toast.success("Welcome back!", {
+  //     description: `Logged in as ${data.email}`,
+  //   });
+  // }
+  async function onSubmit(data: LoginFormData) {
+    console.log(data);
+    try {
+      const res = await loginUser(data);
+      if(res.success){
+        toast.success(res.message)
+      }else{
+           toast.success(res.message)
+      }
+      console.log(res);
+    } catch (error: any) {
+      toast.error(error);
+    }
   }
 
   return (
     <div className="min-h-[85vh] w-full flex items-center justify-center bg-gradient-to-br from-orange-50/40 via-background to-orange-100/30 p-4 lg:p-8">
       <div className="w-full max-w-4xl bg-card rounded-3xl border border-orange-100 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-
         {/* Left Side: Branding & Visual Banner */}
         <div className="hidden lg:flex lg:col-span-5 relative bg-gradient-to-tr from-orange-500 via-orange-500 to-amber-500 p-8 flex-col justify-between text-white overflow-hidden">
           {/* Background Pet Image Overlay */}
@@ -58,7 +98,9 @@ export function LoginForm() {
             <div className="h-10 w-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
               <Dog className="h-6 w-6 text-white" />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight">PetMate</span>
+            <span className="font-extrabold text-2xl tracking-tight">
+              PetMate
+            </span>
           </div>
 
           {/* Middle Content */}
@@ -71,7 +113,8 @@ export function LoginForm() {
               Welcome back to your pet’s favorite place!
             </h2>
             <p className="text-orange-100 text-sm leading-relaxed">
-              Connect with verified sitters, track bookings, and keep your furry friends happy.
+              Connect with verified sitters, track bookings, and keep your furry
+              friends happy.
             </p>
           </div>
 
@@ -82,7 +125,9 @@ export function LoginForm() {
             </div>
             <div>
               <p className="text-xs font-semibold">10,000+ Happy Pets</p>
-              <p className="text-[10px] text-orange-100">Safe & Loving Environment</p>
+              <p className="text-[10px] text-orange-100">
+                Safe & Loving Environment
+              </p>
             </div>
           </div>
         </div>
@@ -111,7 +156,10 @@ export function LoginForm() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="login-email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <FieldLabel
+                      htmlFor="login-email"
+                      className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    >
                       Email Address
                     </FieldLabel>
                     <div className="relative mt-1">
@@ -140,7 +188,10 @@ export function LoginForm() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <div className="flex items-center justify-between mt-1">
-                      <FieldLabel htmlFor="login-password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <FieldLabel
+                        htmlFor="login-password"
+                        className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                      >
                         Password
                       </FieldLabel>
                       <Link
@@ -202,7 +253,6 @@ export function LoginForm() {
             </Link>
           </div>
         </div>
-
       </div>
     </div>
   );
