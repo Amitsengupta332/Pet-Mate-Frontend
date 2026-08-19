@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
-
 import { cookies } from "next/headers";
 import { FieldValues } from "react-hook-form";
 
@@ -17,20 +15,13 @@ export const loginUser = async (userData: FieldValues) => {
     console.log(result);
 
     const storeCookie = await cookies();
-    if (result?.success && result?.data?.token) {
-      storeCookie.set("token", result.data.token, {
-        secure: true,
-        httpOnly: true,
-      });
+    if (result.success) {
+      storeCookie.set("token", result?.data?.token);
     }
 
     return result;
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
-    return {
-      success: false,
-      message: error?.message || "Something went wrong!",
-    };
   }
 };
 
@@ -43,26 +34,17 @@ export const registerUser = async (userData: FieldValues) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData), // <-- এখানে বডি যোগ করা হয়েছে
       },
     );
     const result = await res.json();
     console.log("register", result);
-
     const storeCookie = await cookies();
-    if (result?.success && result?.data?.token) {
-      storeCookie.set("token", result.data.token, {
-        secure: true,
-        httpOnly: true,
-      });
+    if (result.success) {
+      storeCookie.set("token", result?.data?.token);
     }
 
     return result;
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
-    return {
-      success: false,
-      message: error?.message || "Something went wrong!",
-    };
   }
 };

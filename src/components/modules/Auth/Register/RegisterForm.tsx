@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
@@ -22,31 +23,30 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { registerUser } from "@/services/auth";
 
-const registerSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Please enter a valid email address"),
-    role: z.enum(["owner", "sitter"], {
-      required_error: "Please select a role",
-    }),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  role: z.enum(["owner", "sitter"], {
+    required_error: "Please select a role",
+  }),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -55,20 +55,32 @@ export function RegisterForm() {
       email: "",
       role: "owner",
       password: "",
-      confirmPassword: "",
     },
   });
 
-  function onSubmit(data: RegisterFormData) {
-    toast.success("Registration Successful!", {
-      description: `Account created as a Pet ${data.role === "owner" ? "Owner" : "Sitter"}`,
-    });
+  async function onSubmit(data: RegisterFormData) {
+    try {
+      const registerData = {
+        ...data,
+        role: data.role.toUpperCase(), // Prisma Enum-এর জন্য বড় হাতের অক্ষরে রূপান্তর
+      };
+
+      const res = await registerUser(registerData);
+
+      if (res?.success) {
+        toast.success(res.message || "Registration Successful!");
+      } else {
+        toast.error(res?.message || "Registration failed!");
+      }
+      console.log(res);
+    } catch (error: any) {
+      toast.error(error?.message || "Something went wrong!");
+    }
   }
 
   return (
     <div className="min-h-[85vh] w-full flex items-center justify-center bg-gradient-to-br from-orange-50/40 via-background to-orange-100/30 p-4 lg:p-8">
       <div className="w-full max-w-4xl bg-card rounded-3xl border border-orange-100 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-        
         {/* Left Side: Branding & Visual Banner */}
         <div className="hidden lg:flex lg:col-span-5 relative bg-gradient-to-tr from-orange-500 via-orange-500 to-amber-500 p-8 flex-col justify-between text-white overflow-hidden">
           <div className="absolute inset-0 opacity-20 mix-blend-overlay">
@@ -84,7 +96,9 @@ export function RegisterForm() {
             <div className="h-10 w-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
               <Dog className="h-6 w-6 text-white" />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight">PetMate</span>
+            <span className="font-extrabold text-2xl tracking-tight">
+              PetMate
+            </span>
           </div>
 
           <div className="relative z-10 my-auto py-6">
@@ -96,7 +110,8 @@ export function RegisterForm() {
               Start your journey with PetMate today!
             </h2>
             <p className="text-orange-100 text-sm leading-relaxed">
-              Find reliable pet sitters or offer your care services to pet parents nearby.
+              Find reliable pet sitters or offer your care services to pet
+              parents nearby.
             </p>
           </div>
 
@@ -106,7 +121,9 @@ export function RegisterForm() {
             </div>
             <div>
               <p className="text-xs font-semibold">Flexible Roles</p>
-              <p className="text-[10px] text-orange-100">Pet Owners & Certified Sitters</p>
+              <p className="text-[10px] text-orange-100">
+                Pet Owners & Certified Sitters
+              </p>
             </div>
           </div>
         </div>
@@ -127,14 +144,16 @@ export function RegisterForm() {
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FieldGroup className="space-y-3">
-              
               {/* Full Name */}
               <Controller
                 name="name"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="register-name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <FieldLabel
+                      htmlFor="register-name"
+                      className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    >
                       Full Name
                     </FieldLabel>
                     <div className="relative mt-1">
@@ -160,7 +179,10 @@ export function RegisterForm() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="register-email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <FieldLabel
+                      htmlFor="register-email"
+                      className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    >
                       Email Address
                     </FieldLabel>
                     <div className="relative mt-1">
@@ -230,7 +252,10 @@ export function RegisterForm() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="register-password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <FieldLabel
+                      htmlFor="register-password"
+                      className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    >
                       Password
                     </FieldLabel>
                     <div className="relative mt-1">
@@ -248,7 +273,11 @@ export function RegisterForm() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                     {fieldState.invalid && (
@@ -257,41 +286,6 @@ export function RegisterForm() {
                   </Field>
                 )}
               />
-
-              {/* Confirm Password */}
-              <Controller
-                name="confirmPassword"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="register-confirmPassword" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Confirm Password
-                    </FieldLabel>
-                    <div className="relative mt-1">
-                      <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        id="register-confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        className="pl-10 pr-10 h-11 rounded-xl border-border focus-visible:ring-orange-500"
-                        aria-invalid={fieldState.invalid}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground"
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
             </FieldGroup>
 
             <Button
@@ -313,7 +307,6 @@ export function RegisterForm() {
             </Link>
           </div>
         </div>
-
       </div>
     </div>
   );
