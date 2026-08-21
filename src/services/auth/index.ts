@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
+import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { FieldValues } from "react-hook-form";
 
@@ -43,7 +44,7 @@ export const registerUser = async (userData: FieldValues) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData), // <-- এখানে বডি যোগ করা হয়েছে
+        body: JSON.stringify(userData),  
       },
     );
     const result = await res.json();
@@ -65,4 +66,22 @@ export const registerUser = async (userData: FieldValues) => {
       message: error?.message || "Something went wrong!",
     };
   }
+};
+
+export const getUser = async () => {
+  const storeCookie = await cookies();
+  const token = storeCookie.get("token")?.value;
+
+  let decodedData = null;
+  if (token) {
+    decodedData = await jwtDecode(token);
+    return decodedData;
+  } else {
+    return null;
+  }
+};
+
+export const logoutUser = async () => {
+  const storeCookie = await cookies();
+  storeCookie.delete("token");
 };

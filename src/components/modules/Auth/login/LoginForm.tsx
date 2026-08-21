@@ -28,6 +28,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { loginUser } from "@/services/auth";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z
@@ -40,6 +41,10 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
+  // login redirect
+
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginFormData>({
@@ -56,6 +61,7 @@ export function LoginForm() {
 
       if (res?.success) {
         toast.success(res.message || "Welcome back!");
+        router.push("/");
       } else {
         toast.error(res?.message || "Invalid credentials!");
       }
@@ -83,7 +89,9 @@ export function LoginForm() {
             <div className="h-10 w-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
               <Dog className="h-6 w-6 text-white" />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight">PetMate</span>
+            <span className="font-extrabold text-2xl tracking-tight">
+              PetMate
+            </span>
           </div>
 
           <div className="relative z-10 my-auto py-6">
@@ -95,7 +103,8 @@ export function LoginForm() {
               Welcome back to your pet’s favorite place!
             </h2>
             <p className="text-orange-100 text-sm leading-relaxed">
-              Connect with verified sitters, track bookings, and keep your furry friends happy.
+              Connect with verified sitters, track bookings, and keep your furry
+              friends happy.
             </p>
           </div>
 
@@ -105,7 +114,9 @@ export function LoginForm() {
             </div>
             <div>
               <p className="text-xs font-semibold">10,000+ Happy Pets</p>
-              <p className="text-[10px] text-orange-100">Safe & Loving Environment</p>
+              <p className="text-[10px] text-orange-100">
+                Safe & Loving Environment
+              </p>
             </div>
           </div>
         </div>
