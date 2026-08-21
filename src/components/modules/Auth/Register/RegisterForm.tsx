@@ -110,7 +110,7 @@ export function RegisterForm() {
               <Dog className="h-6 w-6 text-white" />
             </div>
             <span className="font-extrabold text-2xl tracking-tight">
-              PetMate
+              <Link href="/"> PetMate</Link>
             </span>
           </div>
 

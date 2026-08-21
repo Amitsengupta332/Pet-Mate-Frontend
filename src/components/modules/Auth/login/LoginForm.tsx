@@ -71,10 +71,10 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-[85vh] w-full flex items-center justify-center bg-gradient-to-br from-orange-50/40 via-background to-orange-100/30 p-4 lg:p-8">
+    <div className="min-h-[85vh] w-full flex items-center justify-center bg-linear-to-br from-orange-50/40 via-background to-orange-100/30 p-4 lg:p-8">
       <div className="w-full max-w-4xl bg-card rounded-3xl border border-orange-100 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
         {/* Left Side: Branding Banner */}
-        <div className="hidden lg:flex lg:col-span-5 relative bg-gradient-to-tr from-orange-500 via-orange-500 to-amber-500 p-8 flex-col justify-between text-white overflow-hidden">
+        <div className="hidden lg:flex lg:col-span-5 relative bg-linear-to-tr from-orange-500 via-orange-500 to-amber-500 p-8 flex-col justify-between text-white overflow-hidden">
           <div className="absolute inset-0 opacity-20 mix-blend-overlay">
             <Image
               src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=800&auto=format&fit=crop"
@@ -90,7 +90,7 @@ export function LoginForm() {
               <Dog className="h-6 w-6 text-white" />
             </div>
             <span className="font-extrabold text-2xl tracking-tight">
-              PetMate
+              <Link href="/"> PetMate</Link>
             </span>
           </div>
 
