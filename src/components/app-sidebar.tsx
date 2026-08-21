@@ -1,194 +1,192 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  Dog,
+  LayoutDashboard,
+  PawPrint,
+  Calendar,
+  User,
+  Users,
+  Briefcase,
+  FolderTree,
+  Home,
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { GalleryVerticalEndIcon, AudioLinesIcon, TerminalIcon, TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, FrameIcon, PieChartIcon, MapIcon } from "lucide-react"
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
+import { getUser } from "@/services/auth";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
+// Pass icons as JSX elements (<Icon />) to match NavMain's ReactNode expectation
+const navConfigs = {
+  admin: [
     {
-      name: "Acme Inc",
-      logo: (
-        <GalleryVerticalEndIcon
-        />
-      ),
-      plan: "Enterprise",
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: <LayoutDashboard className="size-4" />,
     },
     {
-      name: "Acme Corp.",
-      logo: (
-        <AudioLinesIcon
-        />
-      ),
-      plan: "Startup",
+      title: "Manage Users",
+      url: "/dashboard/users",
+      icon: <Users className="size-4" />,
     },
     {
-      name: "Evil Corp.",
-      logo: (
-        <TerminalIcon
-        />
-      ),
-      plan: "Free",
+      title: "All Bookings",
+      url: "/dashboard/bookings",
+      icon: <Calendar className="size-4" />,
+    },
+    {
+      title: "Categories",
+      url: "/dashboard/categories",
+      icon: <FolderTree className="size-4" />,
     },
   ],
-  navMain: [
+  sitter: [
     {
-      title: "Playground",
-      url: "#",
-      icon: (
-        <TerminalSquareIcon
-        />
-      ),
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: <LayoutDashboard className="size-4" />,
     },
     {
-      title: "Models",
-      url: "#",
-      icon: (
-        <BotIcon
-        />
-      ),
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
+      title: "Manage Requests",
+      url: "/dashboard/bookings",
+      icon: <Calendar className="size-4" />,
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: (
-        <BookOpenIcon
-        />
-      ),
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
+      title: "My Services & Rates",
+      url: "/dashboard/services",
+      icon: <Briefcase className="size-4" />,
     },
     {
-      title: "Settings",
-      url: "#",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
+      title: "My Profile",
+      url: "/dashboard/profile",
+      icon: <User className="size-4" />,
     },
   ],
-  projects: [
+  owner: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: (
-        <FrameIcon
-        />
-      ),
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: <LayoutDashboard className="size-4" />,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: (
-        <PieChartIcon
-        />
-      ),
+      title: "My Pets",
+      url: "/dashboard/pets",
+      icon: <PawPrint className="size-4" />,
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: (
-        <MapIcon
-        />
-      ),
+      title: "My Bookings",
+      url: "/dashboard/bookings",
+      icon: <Calendar className="size-4" />,
+    },
+    {
+      title: "Profile",
+      url: "/dashboard/profile",
+      icon: <User className="size-4" />,
     },
   ],
+};
+
+interface UserType {
+  name?: string;
+  email?: string;
+  role?: string;
+  avatar?: string;
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: UserType | null;
+}
+
+export function AppSidebar({ user: initialUser, ...props }: AppSidebarProps) {
+  const [currentUser, setCurrentUser] = useState<UserType | null>(
+    initialUser || null
+  );
+
+  useEffect(() => {
+    if (!initialUser) {
+      const fetchUser = async () => {
+        const data = await getUser();
+        setCurrentUser(data);
+      };
+      fetchUser();
+    }
+  }, [initialUser]);
+
+  const role = currentUser?.role?.toLowerCase() as
+    | "admin"
+    | "sitter"
+    | "owner"
+    | undefined;
+
+  const navItems =
+    role && navConfigs[role] ? navConfigs[role] : navConfigs.owner;
+
   return (
     <Sidebar collapsible="icon" {...props}>
+      {/* Sidebar Header */}
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            {/* Removed asChild prop to fix DOM button warning */}
+            <SidebarMenuButton size="lg">
+              <Link href="/" className="flex items-center gap-2 w-full">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-orange-500 text-white">
+                  <Dog className="size-5" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">PetMate</span>
+                  <span className="truncate text-xs capitalize text-muted-foreground">
+                    {role || "Dashboard"}
+                  </span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
+
+      {/* Sidebar Content */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={navItems} />
       </SidebarContent>
+
+      {/* Sidebar Footer */}
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <SidebarMenu className="mb-2">
+          <SidebarMenuItem>
+            {/* Removed asChild prop */}
+            <SidebarMenuButton tooltip="Back to Website">
+              <Link href="/" className="flex items-center gap-2 w-full">
+                <Home className="size-4" />
+                <span>Main Website</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+        <NavUser
+          user={{
+            name: currentUser?.name || "User",
+            email: currentUser?.email || "user@petmate.com",
+            avatar: currentUser?.avatar || "",
+          }}
+        />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
