@@ -1,9 +1,12 @@
 import HeroCarousel from "@/components/modules/Home/hero";
 import HowItWorks from "@/components/modules/Home/HowItWorks";
 import WhyChooseUs from "@/components/modules/Home/WhyChooseUs";
-import { Button } from "@/components/ui/button";
+import { getAllService } from "@/services/service";
 
-export default function Home() {
+export default async function Home() {
+  const res = await getAllService();
+  console.log(res);
+
   return (
     <div>
       <HeroCarousel />
