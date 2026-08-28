@@ -169,15 +169,14 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="px-6 pb-6 pt-0 relative z-10">
-        <Link
-          href={`/sitters/${service.sitter?.id}?serviceId=${service.id}`}
-          className="w-full"
-        >
-          <Button className="w-full h-11 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-2xl shadow-lg shadow-orange-500/25 transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer">
-            <Sparkles className="h-4 w-4 opacity-80" />
-            <span>Book This Service</span>
-            <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+      <CardFooter className="px-6 pb-6 pt-0 relative z-10 flex gap-2">
+        {/* View Details Button */}
+        <Link href={`/services/${service.id}`} className="w-full">
+          <Button
+            variant="outline"
+            className="w-full h-11 border-orange-200 text-orange-600 hover:bg-orange-50 font-semibold rounded-2xl transition-all"
+          >
+            View Details
           </Button>
         </Link>
       </CardFooter>
