@@ -1,15 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import HeroCarousel from "@/components/modules/Home/hero";
 import HowItWorks from "@/components/modules/Home/HowItWorks";
 import WhyChooseUs from "@/components/modules/Home/WhyChooseUs";
+import ServiceCard from "@/components/modules/service/ServiceCard";
+
 import { getAllService } from "@/services/service";
 
 export default async function Home() {
-  const res = await getAllService();
-  console.log(res);
+  const { data } = await getAllService();
+  console.log(data);
 
   return (
     <div>
       <HeroCarousel />
+      {/* our services */}
+      {/* <ServiceCard service={}/> */}
+      <div className="grid grid-cols-4 gap-5">
+        {data?.map((s: any) => (
+          <ServiceCard key={s.id} service={s} />
+        ))}
+      </div>
 
       {/* TODO:  //?later add new section */}
 

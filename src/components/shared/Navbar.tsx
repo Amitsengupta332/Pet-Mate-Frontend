@@ -75,9 +75,9 @@ export default function Navbar() {
   // };
 
   const getDashboardLink = () => {
-  if (!user) return "/login";
-  return "/dashboard"; // অ্যাডমিন, সিটার বা ওনার — সবার ড্যাশবোর্ড লিঙ্ক হবে /dashboard
-};
+    if (!user) return "/login";
+    return "/dashboard"; // অ্যাডমিন, সিটার বা ওনার — সবার ড্যাশবোর্ড লিঙ্ক হবে /dashboard
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -95,6 +95,12 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link href="/" className="transition-colors hover:text-primary">
             Home
+          </Link>
+          <Link
+            href="/services"
+            className="transition-colors hover:text-primary"
+          >
+            Services
           </Link>
           <Link
             href="/sitters"
@@ -186,6 +192,13 @@ export default function Navbar() {
                   Home
                 </Link>
                 <Link
+                  href="/services"
+                  onClick={() => setIsOpen(false)}
+                  className="text-sm font-medium transition-colors hover:text-primary"
+                >
+                  Services
+                </Link>
+                <Link
                   href="/sitters"
                   onClick={() => setIsOpen(false)}
                   className="text-sm font-medium transition-colors hover:text-primary"
@@ -206,63 +219,6 @@ export default function Navbar() {
                 >
                   Contact
                 </Link>
-
-                <div className="border-t pt-4 mt-2 flex flex-col gap-2">
-                  {loading ? (
-                    <div className="h-10 w-full bg-accent/60 animate-pulse rounded-md flex items-center justify-center">
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : user ? (
-                    <div className="flex flex-col gap-3">
-                      <p className="text-xs text-muted-foreground capitalize">
-                        Logged in as{" "}
-                        <span className="font-semibold text-foreground">
-                          {user.name}
-                        </span>
-                      </p>
-                      <Link
-                        href={getDashboardLink()}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start gap-2"
-                        >
-                          <LayoutDashboard className="h-4 w-4" /> Dashboard
-                        </Button>
-                      </Link>
-                      <Button
-                        onClick={() => {
-                          setIsOpen(false);
-                          handleLogout();
-                        }}
-                        variant="destructive"
-                        className="w-full justify-start gap-2"
-                      >
-                        <LogOut className="h-4 w-4" /> Log out
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <Link
-                        href="/login"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full"
-                      >
-                        <Button variant="outline" className="w-full">
-                          Login
-                        </Button>
-                      </Link>
-                      <Link
-                        href="/register"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full"
-                      >
-                        <Button className="w-full">Register</Button>
-                      </Link>
-                    </>
-                  )}
-                </div>
               </div>
             </SheetContent>
           </Sheet>
