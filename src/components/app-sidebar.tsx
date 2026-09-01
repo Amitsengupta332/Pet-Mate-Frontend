@@ -75,6 +75,7 @@ const navConfigs = {
       icon: <User className="size-4" />,
     },
   ],
+
   owner: [
     {
       title: "Dashboard",
@@ -85,6 +86,16 @@ const navConfigs = {
       title: "My Pets",
       url: "/dashboard/pets",
       icon: <PawPrint className="size-4" />,
+      items: [
+        {
+          title: "All Pets",
+          url: "/dashboard/pets",
+        },
+        {
+          title: "Add New Pet",
+          url: "/dashboard/addPets",
+        },
+      ],
     },
     {
       title: "My Bookings",
@@ -97,6 +108,28 @@ const navConfigs = {
       icon: <User className="size-4" />,
     },
   ],
+  // owner: [
+  //   {
+  //     title: "Dashboard",
+  //     url: "/dashboard",
+  //     icon: <LayoutDashboard className="size-4" />,
+  //   },
+  //   {
+  //     title: "Pets",
+  //     url: "/dashboard/pets",
+  //     icon: <PawPrint className="size-4" />,
+  //   },
+  //   {
+  //     title: "My Bookings",
+  //     url: "/dashboard/bookings",
+  //     icon: <Calendar className="size-4" />,
+  //   },
+  //   {
+  //     title: "Profile",
+  //     url: "/dashboard/profile",
+  //     icon: <User className="size-4" />,
+  //   },
+  // ],
 };
 
 interface UserType {
@@ -112,7 +145,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ user: initialUser, ...props }: AppSidebarProps) {
   const [currentUser, setCurrentUser] = useState<UserType | null>(
-    initialUser || null
+    initialUser || null,
   );
 
   useEffect(() => {

@@ -11,7 +11,7 @@ export const getProfile = async (id: string) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization : 
+        // Authorization : 
       },
       // cache: "no-store",
       next: {
