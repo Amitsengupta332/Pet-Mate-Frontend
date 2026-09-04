@@ -1,9 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Plus, PawPrint, Calendar, FileText, Sparkles, Dog } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Plus,
+  PawPrint,
+  Calendar,
+  FileText,
+  Sparkles,
+  Dog,
+  Trash2,
+  Edit3,
+  Loader2,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { deletePet } from "@/services/pet";
 
 export interface IPet {
   id: string;
@@ -15,9 +28,48 @@ export interface IPet {
 }
 
 export default function AllPetsView({ pets = [] }: { pets: IPet[] }) {
+  const router = useRouter();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // মূল ডিলিট ফাংশন (toast.promise সহ)
+  const executeDelete = async (petId: string) => {
+    setDeletingId(petId);
+
+    const deletePromise = async () => {
+      const res = await deletePet(petId);
+      if (!res?.success) {
+        throw new Error(res?.message || "Failed to delete pet");
+      }
+      router.refresh();
+      return res;
+    };
+
+    toast.promise(deletePromise(), {
+      loading: "Deleting pet profile...",
+      success: "Pet deleted successfully! 🐾",
+      error: (err) => err?.message || "Something went wrong while deleting",
+      finally: () => setDeletingId(null),
+    });
+  };
+
+  // Sonner Toaster এর মাধ্যমে কনফার্মেশন প্রম্পট
+  const handleDeleteClick = (pet: IPet) => {
+    toast(`Delete "${pet.name}"?`, {
+      description:
+        "Are you sure? This pet profile will be permanently removed.",
+      action: {
+        label: "Delete",
+        onClick: () => executeDelete(pet.id),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+    });
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -35,15 +87,17 @@ export default function AllPetsView({ pets = [] }: { pets: IPet[] }) {
         </Link>
       </div>
 
-      {/* Empty State */}
       {pets.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed border-border bg-card/50">
           <div className="size-16 rounded-2xl bg-orange-100 dark:bg-orange-950/40 text-orange-500 flex items-center justify-center mb-4">
             <Dog className="size-8" />
           </div>
-          <h3 className="text-lg font-bold text-foreground">No pets added yet</h3>
+          <h3 className="text-lg font-bold text-foreground">
+            No pets added yet
+          </h3>
           <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-6">
-            Register your pet profile so you can easily book walkers and sitters.
+            Register your pet profile so you can easily book walkers and
+            sitters.
           </p>
           <Link href="/dashboard/addPets">
             <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl gap-2">
@@ -53,7 +107,6 @@ export default function AllPetsView({ pets = [] }: { pets: IPet[] }) {
           </Link>
         </div>
       ) : (
-        /* Pets Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {pets.map((pet) => (
             <div
@@ -76,10 +129,37 @@ export default function AllPetsView({ pets = [] }: { pets: IPet[] }) {
                       </div>
                     </div>
                   </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
-                    {pet.age}
-                  </span>
+
+                  {/* Actions: Edit & Sonner Delete */}
+                  <div className="flex items-center gap-1">
+                    <Link href={`/dashboard/pets/${pet.id}/edit`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-blue-500 hover:bg-blue-50"
+                      >
+                        <Edit3 className="size-4" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(pet)}
+                      disabled={deletingId === pet.id}
+                      className="h-8 w-8 text-red-500 hover:bg-red-50"
+                    >
+                      {deletingId === pet.id ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="size-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
+
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
+                  {pet.age}
+                </span>
 
                 {pet.notes && (
                   <div className="mt-3 pt-3 border-t border-border/60">
