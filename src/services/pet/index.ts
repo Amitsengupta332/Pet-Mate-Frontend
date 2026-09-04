@@ -48,7 +48,7 @@ export const createPet = async (petData: {
       };
     }
 
-    // প্রিজমার জন্য ক্লিন পেলোড তৈরি (কোনো undefined ফিল্ড যাবে না)
+    
     const payload = {
       name: petData.name.trim(),
       breed: petData.breed.trim(),
