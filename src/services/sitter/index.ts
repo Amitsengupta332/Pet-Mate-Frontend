@@ -117,3 +117,70 @@ export const deleteService = async (serviceId: string) => {
     return { success: false, message: error?.message || "Failed to delete service" };
   }
 };
+
+export const updateService = async (
+  serviceId: string,
+  payload: {
+    serviceType?: string;
+    price?: number;
+    description?: string;
+  }
+) => {
+  try {
+    const storeCookie = await cookies();
+    const token = storeCookie.get("token")?.value;
+    if (!token) return { success: false, message: "Unauthorized" };
+
+    const cleanToken = token.startsWith("Bearer ") ? token.split(" ")[1] : token;
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/service/${serviceId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: cleanToken,
+      },
+      body: JSON.stringify({
+        ...payload,
+        price: payload.price ? Number(payload.price) : undefined,
+      }),
+    });
+
+    return await res.json();
+  } catch (error: any) {
+    return { success: false, message: error?.message || "Failed to update service" };
+  }
+};
+
+// পাবলিক সিটার লিস্ট ফেচ (সার্চ ও ফিল্টার সহ)
+export const getAllSitters = async () => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/sitter`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    return await res.json();
+  } catch (error: any) {
+    return { success: false, data: [], message: error?.message || "Failed to fetch sitters" };
+  }
+};
+
+// সিঙ্গেল সিটার বিস্তারিত ফেচ
+export const getSingleSitter = async (sitterProfileId: string) => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/sitter/${sitterProfileId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    return await res.json();
+  } catch (error: any) {
+    return { success: false, data: null, message: error?.message || "Failed to fetch sitter details" };
+  }
+};
