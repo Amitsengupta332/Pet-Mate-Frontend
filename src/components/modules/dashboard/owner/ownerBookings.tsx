@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Calendar, PawPrint, XCircle, Loader2, Star } from "lucide-react";
+import { Calendar, PawPrint, XCircle, Loader2, Star, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cancelBooking } from "@/services/booking";
+import { deleteReview } from "@/services/review";
 import ReviewModal from "./reviewModal";
 
 export interface IBooking {
@@ -16,13 +17,6 @@ export interface IBooking {
   totalPrice: number;
   status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
   notes?: string;
-  sitterId?: string;
-  sitter?: {
-    id: string;
-    user?: {
-      name: string;
-    };
-  };
   pet?: {
     name: string;
     breed: string;
@@ -31,13 +25,27 @@ export interface IBooking {
     serviceType: string;
     price: number;
   };
+  review?: {
+    id: string;
+    rating: number;
+    comment: string;
+  } | null;
 }
 
 export default function OwnerBookingsView({ bookings = [] }: { bookings: IBooking[] }) {
   const router = useRouter();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
-  const [selectedBookingForReview, setSelectedBookingForReview] = useState<string | null>(null);
+  const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
 
+  // মোডাল স্টেট
+  const [activeModalBookingId, setActiveModalBookingId] = useState<string | null>(null);
+  const [editingReviewData, setEditingReviewData] = useState<{
+    id: string;
+    rating: number;
+    comment: string;
+  } | null>(null);
+
+  // বুকিং ক্যান্সেল হ্যান্ডলার
   const handleCancel = (bookingId: string) => {
     toast("Cancel this booking?", {
       description: "Are you sure you want to cancel this pending booking?",
@@ -60,10 +68,34 @@ export default function OwnerBookingsView({ bookings = [] }: { bookings: IBookin
           }
         },
       },
-      cancel: {
-        label: "Back",
-        onClick: () => {},
+      cancel: { label: "Back", onClick: () => {} },
+    });
+  };
+
+  // রিভিউ ডিলিট হ্যান্ডলার (Sonner Toast)
+  const handleDeleteReview = (reviewId: string) => {
+    toast("Delete this review?", {
+      description: "Are you sure you want to remove your rating and feedback?",
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          setDeletingReviewId(reviewId);
+          try {
+            const res = await deleteReview(reviewId);
+            if (res?.success) {
+              toast.success("Review deleted successfully!");
+              router.refresh();
+            } else {
+              toast.error(res?.message || "Failed to delete review");
+            }
+          } catch {
+            toast.error("Something went wrong!");
+          } finally {
+            setDeletingReviewId(null);
+          }
+        },
       },
+      cancel: { label: "Cancel", onClick: () => {} },
     });
   };
 
@@ -153,11 +185,50 @@ export default function OwnerBookingsView({ bookings = [] }: { bookings: IBookin
                     <span>{new Date(b.endDate).toLocaleString()}</span>
                   </div>
                   {b.notes && (
-                    <div className="pt-2 text-foreground/80 italic">
+                    <div className="pt-1.5 text-foreground/80 italic">
                       &ldquo;{b.notes}&rdquo;
                     </div>
                   )}
                 </div>
+
+                {/* রিভিউ অংশ: রিভিউ দেওয়া থাকলে কার্ডে দেখাবে */}
+                {b.review && (
+                  <div className="mt-3 p-3 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 rounded-xl space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-amber-500">
+                        {Array.from({ length: b.review.rating }).map((_, i) => (
+                          <Star key={i} className="size-3.5 fill-amber-500" />
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingReviewData(b.review!);
+                            setActiveModalBookingId(b.id);
+                          }}
+                          className="text-xs text-blue-600 hover:underline flex items-center gap-0.5 p-1"
+                        >
+                          <Edit2 className="size-3" /> Edit
+                        </button>
+                        <button
+                          type="button"
+                          disabled={deletingReviewId === b.review.id}
+                          onClick={() => handleDeleteReview(b.review!.id)}
+                          className="text-xs text-red-600 hover:underline flex items-center gap-0.5 p-1"
+                        >
+                          {deletingReviewId === b.review.id ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-3" />
+                          )}
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-foreground/80 italic">&ldquo;{b.review.comment}&rdquo;</p>
+                  </div>
+                )}
               </div>
 
               <div className="pt-3 border-t border-border flex items-center justify-between">
@@ -166,7 +237,6 @@ export default function OwnerBookingsView({ bookings = [] }: { bookings: IBookin
                 </span>
 
                 <div className="flex items-center gap-2">
-                  {/* PENDING State: Cancel Button */}
                   {b.status === "PENDING" && (
                     <Button
                       variant="outline"
@@ -184,11 +254,14 @@ export default function OwnerBookingsView({ bookings = [] }: { bookings: IBookin
                     </Button>
                   )}
 
-                  {/* COMPLETED State: Leave Review Button */}
-                  {b.status === "COMPLETED" && (
+                  {/* যদি COMPLETED হয় এবং এখনো রিভিউ দেওয়া না হয়ে থাকে */}
+                  {b.status === "COMPLETED" && !b.review && (
                     <Button
                       size="sm"
-                      onClick={() => setSelectedBookingForReview(b.id)}
+                      onClick={() => {
+                        setEditingReviewData(null);
+                        setActiveModalBookingId(b.id);
+                      }}
                       className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs gap-1.5 shadow-xs"
                     >
                       <Star className="size-3.5 fill-white" />
@@ -202,12 +275,16 @@ export default function OwnerBookingsView({ bookings = [] }: { bookings: IBookin
         </div>
       )}
 
-      {/* Review Modal Trigger */}
-      {selectedBookingForReview && (
+      {/* Review Modal */}
+      {activeModalBookingId && (
         <ReviewModal
-          bookingId={selectedBookingForReview}
-          isOpen={Boolean(selectedBookingForReview)}
-          onClose={() => setSelectedBookingForReview(null)}
+          bookingId={activeModalBookingId}
+          existingReview={editingReviewData}
+          isOpen={Boolean(activeModalBookingId)}
+          onClose={() => {
+            setActiveModalBookingId(null);
+            setEditingReviewData(null);
+          }}
         />
       )}
     </div>
