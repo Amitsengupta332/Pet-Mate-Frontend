@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Calendar, Clock, PawPrint, DollarSign, XCircle, Loader2 } from "lucide-react";
+import { Calendar, PawPrint, XCircle, Loader2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cancelBooking } from "@/services/booking";
+import ReviewModal from "./reviewModal";
 
 export interface IBooking {
   id: string;
@@ -15,7 +16,13 @@ export interface IBooking {
   totalPrice: number;
   status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
   notes?: string;
-  createdAt: string;
+  sitterId?: string;
+  sitter?: {
+    id: string;
+    user?: {
+      name: string;
+    };
+  };
   pet?: {
     name: string;
     breed: string;
@@ -29,6 +36,7 @@ export interface IBooking {
 export default function OwnerBookingsView({ bookings = [] }: { bookings: IBooking[] }) {
   const router = useRouter();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState<string | null>(null);
 
   const handleCancel = (bookingId: string) => {
     toast("Cancel this booking?", {
@@ -157,26 +165,50 @@ export default function OwnerBookingsView({ bookings = [] }: { bookings: IBookin
                   Total: <span className="text-orange-600">${b.totalPrice}</span>
                 </span>
 
-                {b.status === "PENDING" && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCancel(b.id)}
-                    disabled={cancellingId === b.id}
-                    className="text-red-500 hover:text-red-600 border-red-200 hover:bg-red-50 rounded-xl text-xs gap-1.5"
-                  >
-                    {cancellingId === b.id ? (
-                      <Loader2 className="size-3.5 animate-spin" />
-                    ) : (
-                      <XCircle className="size-3.5" />
-                    )}
-                    <span>Cancel Request</span>
-                  </Button>
-                )}
+                <div className="flex items-center gap-2">
+                  {/* PENDING State: Cancel Button */}
+                  {b.status === "PENDING" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCancel(b.id)}
+                      disabled={cancellingId === b.id}
+                      className="text-red-500 hover:text-red-600 border-red-200 hover:bg-red-50 rounded-xl text-xs gap-1.5"
+                    >
+                      {cancellingId === b.id ? (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      ) : (
+                        <XCircle className="size-3.5" />
+                      )}
+                      <span>Cancel Request</span>
+                    </Button>
+                  )}
+
+                  {/* COMPLETED State: Leave Review Button */}
+                  {b.status === "COMPLETED" && (
+                    <Button
+                      size="sm"
+                      onClick={() => setSelectedBookingForReview(b.id)}
+                      className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs gap-1.5 shadow-xs"
+                    >
+                      <Star className="size-3.5 fill-white" />
+                      <span>Leave Review</span>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Review Modal Trigger */}
+      {selectedBookingForReview && (
+        <ReviewModal
+          bookingId={selectedBookingForReview}
+          isOpen={Boolean(selectedBookingForReview)}
+          onClose={() => setSelectedBookingForReview(null)}
+        />
       )}
     </div>
   );
