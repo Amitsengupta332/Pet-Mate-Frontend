@@ -24,7 +24,7 @@
 * **Sitter Availability Calendar:** Interactive scheduling interface for sitters to block out blackout dates and specify working hours.
 * **AI Pet Care Assistant (RAG Chatbot):** Intelligent chat widget using vector embeddings (e.g., pgvector / Pinecone) to answer pet health questions and recommend matching sitters based on unstructured queries[cite: 12].
 
----
+--- update vercel
 
 ### 3. Production Deployment Architecture
 * **Frontend:** Deploy Next.js App Router to Vercel with production environment variables[cite: 27].
